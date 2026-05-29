@@ -1,0 +1,25 @@
+name: project_pyreact
+
+services:
+
+  redis:
+    image: redis:trixie
+
+    networks:
+      - frontend
+
+  postgresql:
+    image: postgres:18.4
+
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    networks:
+      - frontend
+
+networks:
+  frontend:
+
+
