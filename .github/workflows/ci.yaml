@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Scan Postgres image
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: postgres:18.4
           format: table
@@ -43,7 +43,7 @@ jobs:
 
       # ✅ scan do repo (SQL, configs, env)
       - name: Scan filesystem
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: fs
           format: table
