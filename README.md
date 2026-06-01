@@ -1,3 +1,141 @@
+# Adubos Real – Dashboard Consultor
+
+Migração do módulo de Consultores do ScriptCase para **Python (FastAPI) + React (Vite)**.
+
+---
+
+## Estrutura do repositório (monorepo)
+
+```
+adubos-real/
+├── .github/
+│   ├── workflows/
+│   │   └── ci.yml                  # CI: lint Python + build React
+│   └── pull_request_template.md
+├── .gitignore
+├── README.md
+│
+├── backend/                        # FastAPI + psycopg2
+│   ├── main.py                     # App, CORS, todos os endpoints
+│   ├── requirements.txt
+│   └── .env.example                # Copie para .env e configure
+│
+└── frontend/                       # React + Vite
+    ├── index.html
+    ├── package.json
+    ├── vite.config.js              # Proxy /api → localhost:8000
+    ├── .env.example
+    └── src/
+        ├── main.jsx
+        ├── App.jsx                 # Header + Dashboard + auto-refresh 1h
+        ├── index.css               # Variáveis, reset, utilitários
+        ├── components/
+        │   ├── Header.jsx/.css
+        │   ├── Velocimetro.jsx/.css  # SVG nativo, sem FusionCharts
+        │   ├── MetaCard.jsx/.css
+        │   ├── DataTable.jsx/.css   # Paginação server-side
+        │   ├── GrupoChart.jsx/.css  # Recharts — barras horizontais
+        │   └── Loading.jsx
+        ├── hooks/
+        │   └── useConsultor.js     # useMetas, useTopClientes, etc.
+        └── pages/
+            └── DashboardConsultor.jsx/.css
+```
+
+---
+
+## Setup inicial (primeira vez)
+
+```bash
+# Clone o repositório
+git clone https://github.com/sua-org/adubos-real.git
+cd adubos-real
+```
+
+### Backend
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate      # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env           # preencha com suas credenciais do PostgreSQL
+uvicorn main:app --reload --port 8000
+```
+
+Docs automáticas: http://localhost:8000/docs
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+cp .env.example .env
+npm run dev
+```
+
+Acesse: http://localhost:5173
+
+> O Vite faz proxy `/api/*` → `http://localhost:8000/*` automaticamente.
+
+---
+
+## Endpoints da API
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| GET | `/health` | Healthcheck |
+| GET | `/consultor/{id}/metas` | Velocímetros (meta × faturamento) |
+| GET | `/consultor/{id}/top-clientes` | Top clientes paginado |
+| GET | `/consultor/{id}/top-produtos` | Top produtos paginado |
+| GET | `/consultor/{id}/top-grupos` | Grupos de produtos (gráfico) |
+| GET | `/consultor/{id}/top-subgrupos` | Subgrupos paginado |
+| GET | `/consultor/{id}/dashboard` | Todos os dados consolidados |
+
+Parâmetros de paginação: `?page=1&page_size=10`
+
+---
+
+## Fluxo de trabalho Git
+
+```
+main        → produção (protegida, só via PR)
+develop     → integração / homologação
+feature/*   → novas funcionalidades
+fix/*       → correções
+```
+
+```bash
+# Criar uma feature
+git checkout develop
+git checkout -b feature/nome-da-feature
+# ... desenvolve ...
+git push origin feature/nome-da-feature
+# Abre PR para develop
+```
+
+---
+
+## Stack
+
+| Camada | Tecnologia | Por quê |
+|--------|------------|---------|
+| Backend | Python 3.12 + FastAPI | Performance, tipagem, docs automáticas |
+| Banco | PostgreSQL (psycopg2) | Banco existente da Adubos Real |
+| Frontend | React 18 + Vite | Ecossistema, React Native no futuro |
+| Gráficos | Recharts + SVG nativo | Zero licença, leve, customizável |
+| CI | GitHub Actions | Já integrado ao repo |
+
+---
+
+## Próximos passos
+
+- [ ] Autenticação JWT (login por consultor)
+- [ ] Contexto global de usuário (substituir `CONSULTOR_ID` fixo)
+- [ ] Outras telas (clientes, pedidos, etc.)
+- [ ] Dockerfile + docker-compose
+- [ ] Testes com pytest (back) e Vitest (front)
+
 # 🚀 Setup do Ambiente (Postgres via Docker)
 
 Este projeto utiliza **Docker Compose** para subir um ambiente com PostgreSQL já configurado e populado com dados.

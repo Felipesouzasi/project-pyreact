@@ -1,0 +1,85 @@
+:root {
+  /* Paleta */
+  --verde-escuro:  #1a2e1a;
+  --verde-mid:     #2d5a27;
+  --verde-vivo:    #3d7a34;
+  --verde-claro:   #5a9e50;
+  --verde-accent:  #7dc464;
+  --creme:         #f5f2eb;
+  --creme-dark:    #ece8de;
+  --texto:         #1c1c1c;
+  --texto-suave:   #5a5a5a;
+  --branco:        #ffffff;
+
+  /* Semáforo */
+  --danger:        #e05252;
+  --warning:       #f0a830;
+  --success:       #4caf72;
+
+  /* Tipografia */
+  --font-display:  'Syne', sans-serif;
+  --font-body:     'DM Sans', sans-serif;
+
+  /* Espaçamento */
+  --gap:           24px;
+  --radius:        12px;
+  --radius-lg:     20px;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--creme);
+  color: var(--texto);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--creme-dark); }
+::-webkit-scrollbar-thumb { background: var(--verde-claro); border-radius: 99px; }
+
+/* Utilitários */
+.positive { color: var(--success); font-weight: 600; }
+.negative { color: var(--danger);  font-weight: 600; }
+.neutral  { color: var(--texto-suave); }
+
+.card {
+  background: var(--branco);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  padding: var(--gap);
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--verde-mid);
+}
+
+/* Animações */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.fade-up {
+  animation: fadeUp 0.5s ease forwards;
+}

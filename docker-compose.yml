@@ -4,29 +4,39 @@ services:
 
   redis:
     image: redis:trixie
-
     networks:
       - frontend
 
   postgresql:
     image: postgres:18.4
-
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-
     volumes:
       - ./postgres/data:/var/lib/postgresql
       - ./postgres/init-db/:/docker-entrypoint-initdb.d/
-
     ports:
       - "5432:5432"
+    networks:
+      - frontend
 
+  backend:
+    build: ./backend
+    container_name: pyreact-backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: postgresql
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgresql
     networks:
       - frontend
 
 networks:
   frontend:
-
-

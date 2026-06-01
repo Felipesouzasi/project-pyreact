@@ -1,0 +1,27 @@
+.gc-wrapper {
+  min-width: 0;
+}
+
+.gc-subtitle {
+  font-size: 11px;
+  color: var(--texto-suave);
+  margin-bottom: 8px;
+}
+
+.gc-tooltip {
+  background: var(--verde-escuro);
+  color: var(--branco);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.5;
+}
+
+.gc-tt-perc {
+  color: var(--verde-accent);
+  font-weight: 700;
+}

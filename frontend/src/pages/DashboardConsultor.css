@@ -1,0 +1,77 @@
+.dc-main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Seção genérica */
+.dc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.dc-mes {
+  font-size: 11px;
+  color: var(--texto-suave);
+  text-transform: capitalize;
+}
+
+/* Grid de velocímetros */
+.dc-velocimetros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.dc-velocimetro-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  animation: fadeUp 0.5s ease both;
+}
+
+/* Dois painéis lado a lado */
+.dc-dois-paineis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .dc-dois-paineis {
+    grid-template-columns: 1fr;
+  }
+
+  .dc-velocimetros {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .dc-main {
+    padding: 16px 12px 48px;
+    gap: 24px;
+  }
+
+  .dc-velocimetros {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+.dc-error {
+  font-size: 13px;
+  color: var(--danger);
+  padding: 12px;
+}
