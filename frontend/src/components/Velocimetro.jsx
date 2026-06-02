@@ -1,135 +1,85 @@
 import React from 'react'
 import './Velocimetro.css'
 
-/**
- * Velocímetro semicircular desenhado 100% em SVG nativo.
- * Nenhuma lib de terceiros necessária.
- */
+/* ── geometria ────────────────────────────────────────────────── */
+const VW = 280, VH = 170
+const CX = VW / 2, CY = VH - 18
+const R  = 110, THICK = 22
+const Rm = R - THICK / 2          // raio do centro da trilha
 
-const W = 260
-const H = 160
-const CX = W / 2
-const CY = H - 10
-const R  = 105
-
-// Converte porcentagem (0–100) → ângulo em radianos no semicírculo
-// 0% = -180° (esquerda), 100% = 0° (direita)
-function percToRad(perc) {
-  const clamped = Math.min(Math.max(perc, 0), 100)
-  return Math.PI * (clamped / 100 - 1)  // -π a 0
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)) }
+function toRad(perc) { return Math.PI * (clamp(perc, 0, 100) / 100 - 1) }
+function xy(rad, r) { return { x: CX + r * Math.cos(rad), y: CY + r * Math.sin(rad) } }
+function arc(a0, a1, r) {
+  const s = xy(a0, r), e = xy(a1, r)
+  const lg = a1 - a0 > Math.PI ? 1 : 0
+  return `M${s.x} ${s.y} A${r} ${r} 0 ${lg} 1 ${e.x} ${e.y}`
 }
 
-function polarToXY(anglRad, r = R) {
-  return {
-    x: CX + r * Math.cos(anglRad),
-    y: CY + r * Math.sin(anglRad),
-  }
-}
-
-function arcPath(startRad, endRad, r, rx = r) {
-  const s = polarToXY(startRad, r)
-  const e = polarToXY(endRad, r)
-  const large = endRad - startRad > Math.PI ? 1 : 0
-  return `M ${s.x} ${s.y} A ${rx} ${rx} 0 ${large} 1 ${e.x} ${e.y}`
-}
-
-// Segmentos de cor (0–75 vermelho, 75–90 amarelo, 90–100 verde)
-const SEGMENTS = [
-  { from: 0,  to: 75,  color: '#e05252' },
-  { from: 75, to: 90,  color: '#f0a830' },
-  { from: 90, to: 100, color: '#4caf72' },
+const SEGS = [
+  { from: 0,  to: 75,  fill: '#e53e3e' },
+  { from: 75, to: 90,  fill: '#d97706' },
+  { from: 90, to: 100, fill: '#16a34a' },
 ]
+const MARKS = [0, 25, 50, 75, 100]
 
-// Marcadores de texto nos ângulos 0%, 25%, 50%, 75%, 100%
-const TICKS = [0, 25, 50, 75, 100]
-
+/* ── componente ───────────────────────────────────────────────── */
 export default function Velocimetro({ titulo, perc = 0 }) {
-  const needleRad = percToRad(perc)
-  const needleTip = polarToXY(needleRad, R - 18)
+  const pct      = clamp(perc, 0, 100)
+  const needRad  = toRad(pct)
+  const tip      = xy(needRad, Rm - 10)
+  const b1       = xy(needRad + Math.PI / 2, 5)
+  const b2       = xy(needRad - Math.PI / 2, 5)
 
-  // Cor do valor baseada no %
-  const valueColor =
-    perc >= 90 ? '#4caf72' :
-    perc >= 75 ? '#f0a830' :
-                 '#e05252'
+  const color = pct >= 90 ? '#16a34a' : pct >= 75 ? '#d97706' : '#e53e3e'
+  const bgAcc = pct >= 90 ? 'var(--ok-bg)' : pct >= 75 ? 'var(--warn-bg)' : 'var(--danger-bg)'
 
   return (
-    <div className="velocimetro-wrapper fade-up">
-      <h3 className="velocimetro-titulo">{titulo}</h3>
+    <div className="vel" style={{ '--c': color, '--bg': bgAcc }}>
+      <span className="vel-title">{titulo}</span>
 
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        width="100%"
-        className="velocimetro-svg"
-        aria-label={`${titulo}: ${perc}%`}
-      >
-        {/* Trilho de fundo */}
-        <path
-          d={arcPath(Math.PI * -1, 0, R)}
-          fill="none"
-          stroke="#e8e4da"
-          strokeWidth={18}
-          strokeLinecap="butt"
-        />
+      <svg viewBox={`0 0 ${VW} ${VH}`} className="vel-svg" role="img" aria-label={`${titulo}: ${pct.toFixed(1)}%`}>
+        {/* trilho cinza */}
+        <path d={arc(-Math.PI, 0, Rm)} fill="none" stroke="var(--border)" strokeWidth={THICK} strokeLinecap="butt" />
 
-        {/* Segmentos coloridos */}
-        {SEGMENTS.map(seg => (
-          <path
-            key={seg.from}
-            d={arcPath(percToRad(seg.from), percToRad(seg.to), R)}
-            fill="none"
-            stroke={seg.color}
-            strokeWidth={18}
-            strokeLinecap="butt"
-            opacity={0.92}
-          />
+        {/* faixas de cor */}
+        {SEGS.map(s => (
+          <path key={s.from} d={arc(toRad(s.from), toRad(s.to), Rm)}
+            fill="none" stroke={s.fill} strokeWidth={THICK} strokeLinecap="butt" opacity=".88" />
         ))}
 
-        {/* Marcadores de texto */}
-        {TICKS.map(t => {
-          const rad = percToRad(t)
-          const { x, y } = polarToXY(rad, R + 18)
+        {/* progresso luminoso */}
+        {pct > 0 && (
+          <path d={arc(-Math.PI, needRad, Rm)}
+            fill="none" stroke={color} strokeWidth={THICK - 10}
+            strokeLinecap="butt" opacity=".3" />
+        )}
+
+        {/* ticks */}
+        {MARKS.map(m => {
+          const r = toRad(m)
+          const p = xy(r, R + 16)
           return (
-            <text
-              key={t}
-              x={x}
-              y={y}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fontSize="10"
-              fill="#888"
-              fontFamily="DM Sans, sans-serif"
-            >
-              {t}%
+            <text key={m} x={p.x} y={p.y} textAnchor="middle" dominantBaseline="middle"
+              fontSize="9" fill="var(--t3)" fontFamily="Inter,sans-serif" fontWeight="500">
+              {m}%
             </text>
           )
         })}
 
-        {/* Agulha */}
-        <line
-          x1={CX}
-          y1={CY}
-          x2={needleTip.x}
-          y2={needleTip.y}
-          stroke="#1a2e1a"
-          strokeWidth={2.5}
-          strokeLinecap="round"
-          style={{ transition: 'all 0.8s cubic-bezier(.34,1.56,.64,1)' }}
-        />
-        {/* Pivô */}
-        <circle cx={CX} cy={CY} r={5} fill="#1a2e1a" />
+        {/* agulha */}
+        <polygon points={`${tip.x},${tip.y} ${b1.x},${b1.y} ${b2.x},${b2.y}`}
+          fill={color} style={{ transition: 'all .9s cubic-bezier(.34,1.1,.64,1)' }} />
 
-        {/* Valor percentual */}
-        <text
-          x={CX}
-          y={CY - 18}
-          textAnchor="middle"
-          fontSize="16"
-          fontWeight="700"
-          fill={valueColor}
-          fontFamily="Syne, sans-serif"
-        >
-          {perc.toFixed(2)}%
+        {/* pivô */}
+        <circle cx={CX} cy={CY} r={11} fill="var(--surface)" stroke={color} strokeWidth={2.5} />
+        <circle cx={CX} cy={CY} r={4.5} fill={color} />
+
+        {/* valor */}
+        <text x={CX} y={CY - 34} textAnchor="middle"
+          fontSize="20" fontWeight="700" fill={color}
+          fontFamily="Space Grotesk,sans-serif" letterSpacing="-.5">
+          {pct.toFixed(1)}%
         </text>
       </svg>
     </div>

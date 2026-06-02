@@ -1,38 +1,27 @@
 import React from 'react'
 import './MetaCard.css'
 
-function fmt(valor) {
-  return Number(valor).toLocaleString('pt-BR', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })
+const fmt = v => Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+function Cell({ label, value, variant }) {
+  const cls = variant === 'negative' ? 'mc-cell mc-cell--red'
+            : variant === 'positive' ? 'mc-cell mc-cell--green'
+            : 'mc-cell'
+  return (
+    <div className={cls}>
+      <span className="mc-label">{label}</span>
+      <span className="mc-val">{value}</span>
+    </div>
+  )
 }
 
 export default function MetaCard({ meta, faturamento, desvio, carteira }) {
   return (
-    <table className="meta-card">
-      <tbody>
-        <tr>
-          <td className="mc-label">Meta</td>
-          <td className="mc-value">{fmt(meta)}</td>
-        </tr>
-        <tr>
-          <td className="mc-label">Faturamento</td>
-          <td className="mc-value">{fmt(faturamento)}</td>
-        </tr>
-        <tr>
-          <td className="mc-label">Desvio</td>
-          <td className={`mc-value ${desvio < 0 ? 'negative' : 'positive'}`}>
-            {fmt(desvio)}
-          </td>
-        </tr>
-        <tr>
-          <td className="mc-label">Carteira</td>
-          <td className={`mc-value ${carteira > 0 ? 'positive' : 'neutral'}`}>
-            {fmt(carteira)}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div className="mc-wrap">
+      <Cell label="Meta"        value={fmt(meta)}        />
+      <Cell label="Faturamento" value={fmt(faturamento)} />
+      <Cell label="Desvio"      value={fmt(desvio)}      variant={desvio < 0 ? 'negative' : 'positive'} />
+      <Cell label="Carteira"    value={fmt(carteira)}    variant={carteira > 0 ? 'positive' : undefined} />
+    </div>
   )
 }

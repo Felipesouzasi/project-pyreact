@@ -1,85 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+/* ── Design Tokens ───────────────────────────────────────────────────────── */
 :root {
-  /* Paleta */
-  --verde-escuro:  #1a2e1a;
-  --verde-mid:     #2d5a27;
-  --verde-vivo:    #3d7a34;
-  --verde-claro:   #5a9e50;
-  --verde-accent:  #7dc464;
-  --creme:         #f5f2eb;
-  --creme-dark:    #ece8de;
-  --texto:         #1c1c1c;
-  --texto-suave:   #5a5a5a;
-  --branco:        #ffffff;
+  /* Superfícies */
+  --bg:          #f4f6f4;
+  --surface:     #ffffff;
+  --surface-2:   #f9faf9;
+  --border:      #e8ece8;
+  --border-2:    #d8ddd8;
+
+  /* Verde Adubos Real */
+  --g900: #0d1a0d;
+  --g800: #162516;
+  --g700: #1e3a1e;
+  --g600: #2a522a;
+  --g500: #386838;
+  --g400: #4a8a4a;
+  --g300: #6aaa6a;
+  --g200: #9ccc9c;
+  --g100: #d0ead0;
+  --g50:  #edf6ed;
+
+  /* Texto */
+  --t1: #0d1a0d;
+  --t2: #3d503d;
+  --t3: #7a8c7a;
+  --t4: #adbead;
 
   /* Semáforo */
-  --danger:        #e05252;
-  --warning:       #f0a830;
-  --success:       #4caf72;
+  --danger:        #e53e3e;
+  --danger-bg:     #fff5f5;
+  --danger-border: #fed7d7;
+  --warn:          #d97706;
+  --warn-bg:       #fffbeb;
+  --ok:            #16a34a;
+  --ok-bg:         #f0fdf4;
+  --ok-border:     #bbf7d0;
 
   /* Tipografia */
-  --font-display:  'Syne', sans-serif;
-  --font-body:     'DM Sans', sans-serif;
+  --sans:    'Inter', system-ui, -apple-system, sans-serif;
+  --display: 'Space Grotesk', system-ui, sans-serif;
 
-  /* Espaçamento */
-  --gap:           24px;
-  --radius:        12px;
-  --radius-lg:     20px;
+  /* Espaços */
+  --r4:  4px;
+  --r8:  8px;
+  --r12: 12px;
+  --r16: 16px;
+  --r20: 20px;
+  --r24: 24px;
+
+  /* Sombras */
+  --s1: 0 1px 2px rgba(0,0,0,.05);
+  --s2: 0 1px 4px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+  --s3: 0 4px 12px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+  --s4: 0 8px 24px rgba(0,0,0,.10), 0 4px 10px rgba(0,0,0,.06);
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
+/* ── Reset ───────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 body {
-  font-family: var(--font-body);
-  background: var(--creme);
-  color: var(--texto);
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--t1);
   min-height: 100dvh;
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Scrollbar personalizada */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--creme-dark); }
-::-webkit-scrollbar-thumb { background: var(--verde-claro); border-radius: 99px; }
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--g400); }
 
-/* Utilitários */
-.positive { color: var(--success); font-weight: 600; }
-.negative { color: var(--danger);  font-weight: 600; }
-.neutral  { color: var(--texto-suave); }
-
-.card {
-  background: var(--branco);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  padding: var(--gap);
-}
-
-.section-title {
-  font-family: var(--font-display);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--verde-mid);
-}
-
-/* Animações */
+/* ── Animações ───────────────────────────────────────────────────────────── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-.fade-up {
-  animation: fadeUp 0.5s ease forwards;
+/* ── Utilitários ─────────────────────────────────────────────────────────── */
+.fade-up { animation: fadeUp .4s ease both; }
+
+.positive { color: var(--ok);     font-weight: 600; }
+.negative { color: var(--danger); font-weight: 600; }
+.muted    { color: var(--t3); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r16);
+  box-shadow: var(--s2);
+}
+
+.eyebrow {
+  font-family: var(--display);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--t3);
 }

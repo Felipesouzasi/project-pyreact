@@ -1,24 +1,39 @@
-.meta-card {
+.mc-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 10px 14px 16px;
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 8px;
 }
 
-.meta-card tr + tr td {
-  padding-top: 3px;
+.mc-cell {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r8);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
+
+.mc-cell--red   { background: var(--danger-bg);  border-color: var(--danger-border); }
+.mc-cell--green { background: var(--ok-bg);      border-color: var(--ok-border); }
 
 .mc-label {
-  font-family: var(--font-body);
-  font-size: 12px;
+  font-size: 9px;
   font-weight: 600;
-  color: var(--texto-suave);
-  padding-right: 12px;
-  white-space: nowrap;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--t3);
 }
 
-.mc-value {
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: var(--texto);
+.mc-val {
+  font-family: var(--display);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--t1);
+  font-variant-numeric: tabular-nums;
 }
+
+.mc-cell--red   .mc-val { color: var(--danger); }
+.mc-cell--green .mc-val { color: var(--ok); }

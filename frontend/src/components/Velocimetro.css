@@ -1,33 +1,51 @@
-.velocimetro-wrapper {
+.vel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r16);
+  box-shadow: var(--s2);
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: var(--branco);
-  border-radius: var(--radius-lg);
-  padding: 20px 16px 12px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  min-width: 220px;
-  max-width: 280px;
-  width: 100%;
+  padding: 18px 14px 0;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow .2s, transform .2s;
+  cursor: default;
 }
 
-.velocimetro-wrapper:hover {
+/* barra de status no topo */
+.vel::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: var(--c, var(--g400));
+  border-radius: var(--r16) var(--r16) 0 0;
+}
+
+.vel:hover {
+  box-shadow: var(--s4);
   transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
 }
 
-.velocimetro-titulo {
-  font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
+.vel-title {
+  font-family: var(--display);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--t2);
   text-align: center;
-  color: var(--verde-escuro);
-  margin-bottom: 4px;
-  letter-spacing: 0.01em;
-  line-height: 1.3;
+  line-height: 1.35;
+  min-height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.velocimetro-svg {
-  max-width: 240px;
+.vel-svg {
+  width: 100%;
+  max-width: 268px;
+  overflow: visible;
+  margin-top: 2px;
 }
