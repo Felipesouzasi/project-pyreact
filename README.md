@@ -5,7 +5,7 @@ Migração do módulo de Consultores do ScriptCase para **Python (FastAPI) + Rea
 ---
 
 ## Estrutura do repositório (monorepo)
-Teste CI/CD 2.0
+Teste CI/CD 3.0
 ```
 adubos-real/
 ├── .github/
