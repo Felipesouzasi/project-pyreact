@@ -77,8 +77,14 @@ jobs:
 
             cd /home/deploy/arpy
 
+           
+            echo "Resetting local changes..."
+            git reset --hard
+            git clean -fd -e .env
+
             echo "Pulling latest code..."
             git pull origin main
+
 
             echo "Building frontend..."
             cd frontend
