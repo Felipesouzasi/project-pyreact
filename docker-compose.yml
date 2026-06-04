@@ -66,6 +66,9 @@ services:
     #CAP_DROP: 
     #  - ALL
 
+    tmpfs:
+      - /tmp/
+
     ports: # alterar para expose em prod
       - "5432:5432"
     
@@ -78,6 +81,21 @@ services:
       - ./postgres/data:/var/lib/postgresql
       - ./postgres/init-db/:/docker-entrypoint-initdb.d/
     
+    #healthcheck:
+
+    cpus: 2
+
+    mem_limit: 4g
+
+    pids_limit: 2048
+
+    shm_size: 1g
+
+    ulimits:
+      nofile:
+        soft: 65336
+        hard: 65536
+
     networks:
       - frontend # remover em prod
       - backend
