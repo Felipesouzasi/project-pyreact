@@ -1,68 +1,141 @@
-name: Docker Compose CI
+name: CI/CD Docker Compose
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 jobs:
-  validate-compose:
+
+  validar-compose:
+    name: Validar Docker Compose
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout do código
         uses: actions/checkout@v4
 
-      - name: Validate docker-compose
+      - name: Configurar Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validar docker-compose
         run: docker compose config
 
-      - name: Dry run (up)
+      - name: Subir containers (teste)
+        run: docker compose up -d --build
+
+      - name: Aguardar serviços
+        run: sleep 15
+
+      - name: Verificar status
+        run: docker compose ps
+
+      - name: Derrubar ambiente
+        if: always()
+        run: docker compose down -v
+
+
+  testes:
+    name: Testes Automatizados
+    runs-on: ubuntu-latest
+    needs: validar-compose
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Subir ambiente
         run: docker compose up -d
 
-      - name: Check running containers
-        run: docker ps -a
+      - name: Rodar testes backend
+        run: docker compose exec -T backend pytest
 
-      - name: Stop containers
+      - name: Derrubar containers
+        if: always()
         run: docker compose down
 
-  security-scan:
+
+  scan-seguranca:
+    name: Scan de Segurança
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Scan Postgres image
-        uses: aquasecurity/trivy-action@master
+      - name: Scan imagem Postgres
+        uses: aquasecurity/trivy-action@0.21.0
         with:
           image-ref: postgres:18.4
-          format: table
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           exit-code: 0
 
       - name: Scan filesystem
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.21.0
         with:
           scan-type: fs
-          format: table
           severity: CRITICAL,HIGH
           exit-code: 1
 
-  secrets-scan:
+      - name: Scan dependências
+        uses: actions/dependency-review-action@v4
+
+
+  scan-segredos:
+    name: Scan de Segredos
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run Gitleaks
+      - name: Rodar Gitleaks
         uses: gitleaks/gitleaks-action@v2
 
-  # ✅ NEW: deploy job
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [validate-compose, security-scan, secrets-scan]
 
-    # ✅ only deploy on push to main (not PR)
+  lint-e-dockerfile:
+    name: Lint e Validação Dockerfile
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint código
+        run: |
+          npm install || true
+          npm run lint || true
+
+      - name: Validar Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+
+
+  build-cache:
+    name: Build com Cache
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build com cache
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: app:teste
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+
+  deploy:
+    name: Deploy Produção
+    runs-on: ubuntu-latest
+    needs:
+      [
+        validar-compose,
+        testes,
+        scan-seguranca,
+        scan-segredos,
+        lint-e-dockerfile
+      ]
+
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
@@ -72,25 +145,49 @@ jobs:
           host: ${{ secrets.OCI_HOST }}
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
+          port: 22
+          timeout: 60s
+          command_timeout: 20m
+
           script: |
             set -e
 
             cd /home/deploy/arpy
 
-           
-            echo "Resetting local changes..."
+            echo "Salvando versão atual..."
+            PREV=$(git rev-parse HEAD)
+
+            echo "Resetando alterações..."
             git reset --hard
             git clean -fd -e .env
 
-            echo "Pulling latest code..."
-            git pull origin main
+            echo "Atualizando código..."
+            git pull origin main || (git reset --hard $PREV && exit 1)
 
-
-            echo "Building frontend..."
+            echo "Build frontend..."
             cd frontend
             npm ci
             npm run build
             cd ..
 
-            echo "Restarting containers..."
-            docker compose up -d --build
+            echo "Subindo containers..."
+            docker compose up -d --build --remove-orphans || (
+              echo "Erro no deploy, voltando versão..."
+              git reset --hard $PREV
+              docker compose up -d --build
+              exit 1
+            )
+
+            echo "Aguardando app..."
+            sleep 15
+
+            echo "Healthcheck..."
+            if ! curl -f http://localhost:3000; then
+              echo "App falhou, rollback..."
+              git reset --hard $PREV
+              docker compose up -d --build
+              exit 1
+            fi
+
+            echo "Deploy concluído com sucesso ✅"
+``
