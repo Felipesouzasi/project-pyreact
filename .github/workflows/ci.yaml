@@ -58,7 +58,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Scan Postgres
-        uses: aquasecurity/trivy-action@0.21.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: postgres:18.4
           severity: CRITICAL,HIGH
@@ -101,6 +101,7 @@ jobs:
           npm run lint || true
 
 
+  
   build_cache:
     name: Build Docker Cache
     runs-on: ubuntu-latest
@@ -108,14 +109,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build com cache
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: false
-          tags: app:teste
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Configurar Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build sem cache avançado (estável)
+        run: docker build -t app:teste .
+
 
 
   deploy:
