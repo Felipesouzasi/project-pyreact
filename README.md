@@ -93,7 +93,7 @@ Acesse: http://localhost:5173
 | GET | `/consultor/{id}/dashboard` | Todos os dados consolidados |
 
 Parâmetros de paginação: `?page=1&page_size=10`
-
+d
 ---
 
 ## Fluxo de trabalho Git
