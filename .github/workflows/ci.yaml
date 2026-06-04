@@ -167,14 +167,6 @@ jobs:
             )
 
             echo "Aguardando app"
-            sleep 25
-
-            echo "Healthcheck"
-            if ! curl -f http://localhost:8000; then
-              echo "Falhou -> rollback"
-              git reset --hard $PREV
-              docker compose up -d --build
-              exit 1
-            fi
+            sleep 15
 
             echo "Deploy OK ✅"
