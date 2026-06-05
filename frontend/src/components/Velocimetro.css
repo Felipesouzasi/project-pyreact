@@ -1,51 +1,59 @@
 .vel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r16);
-  box-shadow: var(--s2);
+  background: var(--vel-bg);
+  border: 1px solid var(--vel-border);
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 18px 14px 0;
+  padding: 0 12px 0;
   position: relative;
   overflow: hidden;
-  transition: box-shadow .2s, transform .2s;
+  transition: border-color .25s, box-shadow .25s, transform .25s, background .25s;
   cursor: default;
 }
 
-/* barra de status no topo */
-.vel::before {
+.vel::after {
   content: '';
   position: absolute;
-  inset: 0 0 auto 0;
-  height: 3px;
-  background: var(--c, var(--g400));
-  border-radius: var(--r16) var(--r16) 0 0;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, var(--vel-after) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .vel:hover {
-  box-shadow: var(--s4);
-  transform: translateY(-3px);
+  border-color: var(--border2);
+  box-shadow: 0 8px 32px rgba(0,0,0,.15), 0 0 0 1px var(--border2);
+  transform: translateY(-2px);
+}
+
+.vel-status {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  border-radius: 16px 16px 0 0;
+  transition: background .5s, box-shadow .5s;
 }
 
 .vel-title {
-  font-family: var(--display);
-  font-size: 10.5px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 9.5px;
   font-weight: 600;
-  letter-spacing: .07em;
+  letter-spacing: .1em;
   text-transform: uppercase;
-  color: var(--t2);
+  color: var(--vel-title);
   text-align: center;
   line-height: 1.35;
-  min-height: 26px;
+  padding-top: 16px;
+  min-height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: color .25s;
 }
 
 .vel-svg {
   width: 100%;
-  max-width: 268px;
+  max-width: 248px;
   overflow: visible;
-  margin-top: 2px;
+  margin-top: -4px;
 }

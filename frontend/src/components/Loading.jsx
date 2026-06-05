@@ -8,13 +8,13 @@ export default function Loading({ text = 'Carregando...' }) {
       color:'var(--t3)', width:'100%',
     }}>
       <div style={{
-        width:32, height:32,
-        border:'3px solid var(--border)',
-        borderTopColor:'var(--g500)',
+        width:28, height:28,
+        border:'2px solid var(--border2)',
+        borderTopColor:'var(--green)',
         borderRadius:'50%',
-        animation:'spin .75s linear infinite',
-      }} />
-      <span style={{ fontSize:13, fontFamily:'var(--sans)' }}>{text}</span>
+        animation:'spin .7s linear infinite',
+      }}/>
+      <span style={{ fontSize:12, fontFamily:'DM Mono, monospace' }}>{text}</span>
     </div>
   )
 }
