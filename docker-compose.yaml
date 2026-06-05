@@ -8,13 +8,13 @@ services:
     image: nginxinc/nginx-unprivileged:alpine3.23-perl
     restart: unless-stopped
 
-    read_only: true
+      #    read_only: true
 
-    security_opt:
-      - no-new-privileges
+      #security_opt:
+      # - no-new-privileges
 
-    cap_drop:
-      - ALL
+        #    cap_drop:
+        #- ALL
 
     tmpfs:
       - /tmp/:uid=101,gid=101,mode=1770,size=512m
@@ -29,13 +29,13 @@ services:
       - ./frontend/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./frontend/dist:/usr/share/nginx/html
 
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080"]
-      interval: 1m
-      timeout: 15s
-      retries: 3
-      start_period: 20s
-      start_interval: 5s
+        #    healthcheck:
+        #test: ["CMD", "curl", "-f", "http://localhost:8080"]
+        #interval: 1m
+        #timeout: 15s
+        #retries: 3
+        #start_period: 20s
+        #start_interval: 5s
 
     depends_on:
       postgresql:
