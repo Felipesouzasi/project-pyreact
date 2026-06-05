@@ -3,55 +3,131 @@ name: project_pyreact
 
 services:
 
+
   nginx:
-    image: nginx:stable-alpine3.23-perl
+    image: nginx:stable-alpine3.23-perl # trocar pra unprivileged
+    restart: unless-stopped
+
+    #security_opt:
+    #  - no-new-privileges
+
+    #cap_drop:
+    #  - ALL
+
+    #cap_add:
+    #  - 
+    
+    tmpfs:
+      - /tmp/
+
     ports:
       - "80:80"
+
     volumes:
       - ./frontend/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./frontend/dist:/usr/share/nginx/html
 
+    #healthcheck:
+
+    #depends_on:
+
+    cpus: 0.5
+
+    mem_limit: 2g
+
+    pids_limit: 2048
+
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
     networks:
       - frontend
+
 
   redis:
     image: redis:trixie
+    restart: unless-stopped
+
     networks:
       - frontend
 
+
   postgresql:
     image: postgres:18.4
+    restart: unless-stopped
+
+    #user: "999:999"
+
+    #security_opt: 
+    #  - no-new-privileges
+
+    #CAP_DROP: 
+    #  - ALL
+
+    tmpfs:
+      - /tmp/
+
+    ports: # alterar para expose em prod
+      - "5432:5432"
+    
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    
     volumes:
       - ./postgres/data:/var/lib/postgresql
       - ./postgres/init-db/:/docker-entrypoint-initdb.d/
-    ports:
-      - "5432:5432"
+    
+    #healthcheck:
+
+    cpus: 2
+
+    mem_limit: 4g
+
+    pids_limit: 2048
+
+    shm_size: 1g
+
+    ulimits:
+      nofile:
+        soft: 65336
+        hard: 65536
+
     networks:
-      - frontend
+      - frontend # remover em prod
+      - backend
+
 
   backend:
     build: ./backend
-    container_name: pyreact-backend
+
+    container_name: backend
     restart: unless-stopped
+
+    ports:
+      - "8000:8000"
+
     environment:
       DB_HOST: postgresql
       DB_PORT: 5432
       DB_NAME: ${POSTGRES_DB}
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "8000:8000"
+
     depends_on:
       - postgresql
+    
     networks:
       - frontend
 
+
   portainer:
     image: portainer/portainer
+    restart: unless-stopped
+
     ports:
       - "9443:9443"
       - "9000:9000"
@@ -60,5 +136,9 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+
 networks:
   frontend:
+
+  backend:
+    internal: true
