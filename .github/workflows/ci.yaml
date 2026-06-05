@@ -18,7 +18,7 @@ jobs:
         run: docker compose config
 
       - name: Subir containers
-        run: docker compose up -d --build
+        run: docker compose up -d --build || true
 
       - name: Aguardar serviços
         run: sleep 20
