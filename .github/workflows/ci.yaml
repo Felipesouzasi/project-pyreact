@@ -18,14 +18,11 @@ jobs:
         run: docker compose config
 
       - name: Subir containers
-        run: docker compose up -d --build
-        env:
-          POSTGRES_DB: app
-          POSTGRES_USER: app
-          POSTGRES_PASSWORD: app
+        run: docker compose up -d --build || EXIT_CODE=$?
+
 
       - name: Aguardar serviços
-        run: sleep 40
+        run: sleep 20
 
       - name: Verificar containers
         run: docker ps -a
@@ -44,7 +41,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Subir ambiente
-        run: docker compose up -d || true
+        run: docker compose up -d --build || EXIT_CODE=$?
+
 
       - name: Rodar testes (safe)
         run: docker compose run --rm backend pytest || echo "Sem testes"
