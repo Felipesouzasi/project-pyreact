@@ -11,21 +11,33 @@ const fmt = v => {
   return n.toLocaleString('pt-BR')
 }
 
+// Fix: percentual vem calculado no backend via subquery — campo: percentual_faturado
+function getPct(row) {
+  const v = row?.percentual_faturado ?? row?.percentual ?? null
+  const n = Number(v)
+  return isNaN(n) ? null : n
+}
+
 function SafeTooltip({ active, payload }) {
   if (!active || !Array.isArray(payload) || !payload.length) return null
   const d = payload[0]?.payload
   if (!d) return null
+  const pct = getPct(d)
   return (
     <div className="gc-tip">
       <strong>{d.grupo ?? '—'}</strong>
       <span>{Number(d.vlr_total_faturado ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-      <span className="gc-tip-pct">{d.percentual_faturado ?? 0}% do total</span>
+      {pct !== null
+        ? <span className="gc-tip-pct">{pct.toFixed(2)}% do total</span>
+        : <span className="gc-tip-pct" style={{color:'var(--t3)'}}>calculando...</span>
+      }
     </div>
   )
 }
 
 export default function GrupoChart({ data }) {
   const safe = Array.isArray(data) ? data : []
+
   if (!safe.length) return (
     <div className="gc card">
       <div className="gc-head">
@@ -35,6 +47,7 @@ export default function GrupoChart({ data }) {
       <div className="gc-empty">Nenhum dado disponível</div>
     </div>
   )
+
   return (
     <div className="gc card">
       <div className="gc-head">

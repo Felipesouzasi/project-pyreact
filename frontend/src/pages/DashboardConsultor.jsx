@@ -13,24 +13,39 @@ import './DashboardConsultor.css'
 
 /* ── helpers ──────────────────────────────────────────────── */
 function safeNum(v) { const n = Number(v); return isNaN(n) ? 0 : n }
+
 const fmt = v => safeNum(v).toLocaleString('pt-BR', {
   minimumFractionDigits: 2, maximumFractionDigits: 2,
 })
+
 const fmtPct = v => {
-  const n = safeNum(v)
-  return `${n.toFixed(2)}%`
+  if (v === null || v === undefined) return '—'
+  const n = Number(v)
+  return isNaN(n) ? '—' : `${n.toFixed(2)}%`
 }
+
 const hoje = () => new Date().toLocaleDateString('pt-BR')
 
+/* DSC badge — dias_ultima_compra pode vir null da view */
 function DscBadge({ dias }) {
-  const n = safeNum(dias)
+  if (dias === null || dias === undefined) {
+    return (
+      <span style={{
+        display:'inline-block', padding:'2px 9px', borderRadius:6,
+        fontSize:11, fontWeight:700, fontFamily:'var(--mono)',
+        background:'rgba(255,255,255,.05)', color:'var(--t3)',
+        border:'1px solid var(--border)',
+      }}>—</span>
+    )
+  }
+  const n  = safeNum(dias)
   const ok = n < 180
   return (
     <span style={{
-      display: 'inline-block', padding: '2px 9px', borderRadius: 6,
-      fontSize: 11, fontWeight: 700, fontFamily: 'var(--mono)',
-      background: ok ? 'rgba(34,197,94,.1)'   : 'rgba(239,68,68,.1)',
-      color:      ok ? '#4ade80'               : '#f87171',
+      display:'inline-block', padding:'2px 9px', borderRadius:6,
+      fontSize:11, fontWeight:700, fontFamily:'DM Mono, monospace',
+      background: ok ? 'rgba(34,197,94,.1)'  : 'rgba(239,68,68,.1)',
+      color:      ok ? '#4ade80'             : '#f87171',
       border:    `1px solid ${ok ? 'rgba(34,197,94,.2)' : 'rgba(239,68,68,.2)'}`,
     }}>{n}</span>
   )
@@ -49,7 +64,7 @@ function SecaoMetas({ cid }) {
   const grupos = Array.isArray(data?.data) ? data.data : []
   const row1   = grupos.slice(0, 4)
   const row2   = grupos.slice(4)
-  const mes    = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+  const mes    = new Date().toLocaleDateString('pt-BR', { month:'long', year:'numeric' })
 
   if (!grupos.length) return (
     <section className="dc-sec">
@@ -141,18 +156,11 @@ function SecaoProdutos({ cid }) {
   const grp = useTopGrupos(cid)
   const sub = useTopSubgrupos(cid, pgS, PS)
 
-  // campo pode vir como percentual_faturado ou percentual — normaliza nos dois casos
+  // percentual_faturado vem do backend calculado via subquery
   const colS = [
-    { key:'subgrupo',           label:'Subgrupo' },
-    { key:'vlr_total_faturado', label:'Valor Total', render: v => fmt(v) },
-    {
-      key:'percentual_faturado',
-      label:'%',
-      render: (v, row) => {
-        const val = v ?? row?.percentual ?? row?.percentual_faturado
-        return fmtPct(val)
-      }
-    },
+    { key:'subgrupo',            label:'Subgrupo' },
+    { key:'vlr_total_faturado',  label:'Valor Total', render: v => fmt(v) },
+    { key:'percentual_faturado', label:'%',           render: v => fmtPct(v) },
   ]
 
   return (
