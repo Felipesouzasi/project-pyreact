@@ -1,35 +1,45 @@
 
-name: project_pyreact
+name: Arpy
 
 services:
 
 
   nginx:
-    image: nginx:stable-alpine3.23-perl # trocar pra unprivileged
+    image: nginxinc/nginx-unprivileged:alpine3.23-perl
     restart: unless-stopped
 
-    #security_opt:
-    #  - no-new-privileges
+    read_only: true
 
-    #cap_drop:
-    #  - ALL
+    security_opt:
+      - no-new-privileges
 
-    #cap_add:
-    #  - 
-    
+    cap_drop:
+      - ALL
+
     tmpfs:
-      - /tmp/
+      - /tmp/:uid=101,gid=101,mode=1770,size=512m
+      - /var/run/:uid=101,gid=101,mode=1770,size=512m
+      - /var/cache/nginx/:uid=101,gid=101,mode=1770,size=512m
 
     ports:
-      - "80:80"
+      - "80:8080"
+      - "443:8443"
 
     volumes:
       - ./frontend/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./frontend/dist:/usr/share/nginx/html
 
-    #healthcheck:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 1m
+      timeout: 15s
+      retries: 3
+      start_period: 20s
+      start_interval: 5s
 
-    #depends_on:
+    depends_on:
+      postgresql:
+        condition: service_healthy
 
     cpus: 0.5
 
@@ -44,6 +54,7 @@ services:
 
     networks:
       - frontend
+      - backend
 
 
   redis:
@@ -58,19 +69,19 @@ services:
     image: postgres:18.4
     restart: unless-stopped
 
-    #user: "999:999"
+    user: "999:999"
 
-    #security_opt: 
-    #  - no-new-privileges
+    security_opt: 
+      - no-new-privileges
 
-    #CAP_DROP: 
-    #  - ALL
+    cap_drop:
+      - ALL
 
     tmpfs:
       - /tmp/
 
-    ports: # alterar para expose em prod
-      - "5432:5432"
+    expose:
+      - "5432"
     
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -81,7 +92,13 @@ services:
       - ./postgres/data:/var/lib/postgresql
       - ./postgres/init-db/:/docker-entrypoint-initdb.d/
     
-    #healthcheck:
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 5432 -U postgres"]
+      interval: 1m
+      timeout: 10s
+      retries: 3
+      start_period: 1m
+      start_interval: 10s
 
     cpus: 2
 
@@ -97,7 +114,6 @@ services:
         hard: 65536
 
     networks:
-      - frontend # remover em prod
       - backend
 
 
@@ -117,11 +133,21 @@ services:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
 
+    #healthcheck:
+    #  test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+    #  interval: 1m
+    #  timeout: 0s
+    #  retries: 3
+    #  start_period: 0s
+    #  start_interval: 5s
+      
+
     depends_on:
-      - postgresql
+      postgresql:
+        condition: service_healthy
     
     networks:
-      - frontend
+      - backend
 
 
   portainer:
