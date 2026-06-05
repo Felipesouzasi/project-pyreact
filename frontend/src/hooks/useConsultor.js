@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react'
 const BASE_URL = '/api'
 
 // Consultor fixo por enquanto – futuramente virá do contexto de autenticação
-export const CONSULTOR_ID = 40000584
+export const CONSULTOR_ID = 40000958
 
 // ─── fetch genérico ───────────────────────────────────────────────────────────
 async function apiFetch(path) {

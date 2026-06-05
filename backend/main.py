@@ -65,7 +65,8 @@ def health():
 @app.get("/consultor/{consultor_id}/metas")
 def get_metas(consultor_id: int, conn=Depends(get_db)):
     ano = datetime.now().year
-    mes = datetime.now().month
+    #mes = datetime.now().month
+    mes = 5
 
     sql = """
         SELECT
