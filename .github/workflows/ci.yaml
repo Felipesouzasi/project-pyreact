@@ -18,7 +18,11 @@ jobs:
         run: docker compose config
 
       - name: Subir containers
-        run: docker compose up -d --build || true
+        run: docker compose up -d --build
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
 
       - name: Aguardar serviços
         run: sleep 20
