@@ -25,7 +25,7 @@ jobs:
           POSTGRES_PASSWORD: app
 
       - name: Aguardar serviços
-        run: sleep 20
+        run: sleep 40
 
       - name: Verificar containers
         run: docker ps -a
