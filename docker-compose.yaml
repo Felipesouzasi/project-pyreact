@@ -42,7 +42,10 @@ services:
     depends_on:
       postgresql:
         condition: service_healthy
-
+      prometheus:
+        condition: service_started
+      grafana:
+        condition: service_started
     cpus: 0.5
 
     mem_limit: 2g
@@ -170,6 +173,64 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus-data:/prometheus
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--web.external-url=https://prometheusrealdigital.duckdns.org/"
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.route-prefix=/"
+    expose:
+      - "9090"
+    networks:
+      - backend
+
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    expose:
+      - "3000"
+    depends_on:
+      - prometheus
+    networks:
+      - backend
+
+
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgresql:5432/${POSTGRES_DB}?sslmode=disable"
+    expose:
+      - "9187"
+    networks:
+      - backend
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter
+    command:
+      - -nginx.scrape-uri=http://nginx:8080/nginx_status
+    restart: unless-stopped
+
+    expose:
+      - "9113"
+
+    depends_on:
+      - nginx
+
+    networks:
+      - backend
 
 networks:
   frontend:

@@ -6,6 +6,7 @@ import psycopg2.extras
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from prometheus_fastapi_instrumentator import Instrumentator
 
 load_dotenv()
 
@@ -51,7 +52,7 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
-
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://localhost:3000"],
